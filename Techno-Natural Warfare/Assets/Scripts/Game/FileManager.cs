@@ -77,7 +77,7 @@ public class FileManager : MonoBehaviour
     private TextMeshProUGUI nameInfo;
     private GameObject[] files;
     private Button copyButton;
-    private Button deleteButton;    
+    private Button deleteButton;
     private Button yesButton;
     private Button noButton;
     private Button confirmButton;
@@ -127,7 +127,7 @@ public class FileManager : MonoBehaviour
         set { isCharacterNamed = value; }
     }
 
-    private string characterName;
+    private string characterName = null;
 
     public string CharacterName
     {
@@ -151,18 +151,6 @@ public class FileManager : MonoBehaviour
 
     private void SceneLoaded(Scene loadedScene, LoadSceneMode mode)
     {
-        if (loadedScene.name == "File Select Menu")
-        {
-            SelectedFile = -1;
-
-            Game.Instance.UIController.ChangeAllPanelsIsActive(true);
-            FindNeededResources();
-            UpdateGUI();
-            SetupButtons();
-            Game.Instance.UIController.ChangeAllPanelsIsActive(false);
-            Game.Instance.UIController.ShowPanel("MainPanel", "Please select a file to play");
-        }
-
         if (selectedFile != -1)
         {
             SaveSystem.SaveObject<GameData>(Game.Instance.Data, $"file{SelectedFile}gamedata.gme");
@@ -171,7 +159,7 @@ public class FileManager : MonoBehaviour
         }
     }
 
-    private void UpdateGUI()
+    public void UpdateGUI()
     {
         for (int i = 0; i < NUM_OF_FILES; i++)
         {
@@ -231,7 +219,7 @@ public class FileManager : MonoBehaviour
         deleteButton.onClick.AddListener(delegate { DeleteButtonClicked(); });
         copyButton.onClick.AddListener(delegate { CopyButtonClicked(); });
 
-        yesButton.onClick.AddListener(delegate { Choice = true; }); 
+        yesButton.onClick.AddListener(delegate { Choice = true; });
         noButton.onClick.AddListener(delegate { Choice = false; });
 
         confirmButton.onClick.AddListener(delegate { NameCharacterFromInput(inputField); });
@@ -272,19 +260,23 @@ public class FileManager : MonoBehaviour
         }
         else
         {
-            if (Info.isNews[fileClicked])
+            if (Info.isNews[fileClicked - 1])
             {
                 StartCoroutine("PromptForName", fileClicked);
+            }
+            else
+            {
+                StartFile(fileClicked);
             }
         }
     }
 
     private void DeleteFile(int deletingFile)
     {
-        info.names[deletingFile-1] = "New Player";
-        info.playTimes[deletingFile-1] = 0;
-        info.achievements[deletingFile-1] = 0;
-        info.isNews[deletingFile-1] = true;
+        info.names[deletingFile - 1] = "New Player";
+        info.playTimes[deletingFile - 1] = 0;
+        info.achievements[deletingFile - 1] = 0;
+        info.isNews[deletingFile - 1] = true;
 
         UpdateGUI();
     }
@@ -331,10 +323,10 @@ public class FileManager : MonoBehaviour
 
     private void CopyFiles()
     {
-        info.names[copyToFile-1] = info.names[copyFromFile-1];
-        info.playTimes[copyToFile-1] = info.playTimes[copyFromFile-1];
-        info.achievements[copyToFile-1] = info.achievements[copyFromFile-1];
-        info.isNews[copyToFile-1] = info.isNews[copyFromFile-1];
+        info.names[copyToFile - 1] = info.names[copyFromFile - 1];
+        info.playTimes[copyToFile - 1] = info.playTimes[copyFromFile - 1];
+        info.achievements[copyToFile - 1] = info.achievements[copyFromFile - 1];
+        info.isNews[copyToFile - 1] = info.isNews[copyFromFile - 1];
 
         UpdateGUI();
     }
@@ -348,18 +340,27 @@ public class FileManager : MonoBehaviour
             yield return null;
         }
         StopCoroutine("NameCharacter");
-        
-        info.names[fileIndex-1] = CharacterName;
-        info.isNews[fileIndex-1] = false;
 
+        info.names[fileIndex - 1] = CharacterName;
+        info.isNews[fileIndex - 1] = false;
+
+        StartFile(fileIndex);
+        yield return null;
+    }
+
+    private void StartFile(int fileIndex)
+    {
         GameData data = SaveSystem.LoadObject<GameData>($"file{fileIndex}gamedata.gme");
-        data.PlayerName = CharacterName;
+        if (CharacterName != null)
+        {
+            data.PlayerName = CharacterName;
+        }
         Game.Instance.Data = data;
 
         SelectedFile = fileIndex;
         Game.Instance.SceneManagerObject.LoadSceneAsyncByName("Main Menu");
-        yield return null;
     }
+
     public void NameCharacterFromInput(TMP_InputField inputField)
     {
         if (inputField.text.Trim().Length != 0)

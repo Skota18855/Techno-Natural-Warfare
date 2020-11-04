@@ -36,6 +36,20 @@ public class UIController : MonoBehaviour
             }
         }
 
+
+        if (loadedScene.name == "File Select Menu")
+        {
+            Game.Instance.FileManager.SelectedFile = -1;
+            Game.Instance.FileManager.CharacterName = null;
+            Game.Instance.FileManager.IsCharacterNamed = false;
+
+            Game.Instance.UIController.ChangeAllPanelsIsActive(true);
+            Game.Instance.FileManager.FindNeededResources();
+            Game.Instance.FileManager.UpdateGUI();
+            Game.Instance.FileManager.SetupButtons();
+            Game.Instance.UIController.ChangeAllPanelsIsActive(false);
+            Game.Instance.UIController.ShowPanel("MainPanel", "Please select a file to play");
+        }
     }
 
     public void ShowPanel(string panelName, string prompt)

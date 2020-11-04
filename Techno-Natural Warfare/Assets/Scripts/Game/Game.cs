@@ -33,6 +33,14 @@ public class Game : MonoBehaviour
         set {  uiController = value; }
     }
 
+    private FileManager fileManager;
+
+    public FileManager FileManager
+    {
+        get { return fileManager; }
+        set { fileManager = value; }
+    }
+
     private void Awake()
     {
         if (Instance == null)
@@ -40,7 +48,8 @@ public class Game : MonoBehaviour
             Game.Instance = this;
             GameData data = new GameData();
 
-            UIController = GetComponent <UIController>();
+            UIController = GetComponent<UIController>();
+            FileManager = GetComponent<FileManager>();
 
             Instance.Data = data;
 

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
 
 public class SettingsManager : MonoBehaviour
@@ -11,6 +12,7 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] Slider volume = null;
     [SerializeField] TextMeshProUGUI valueText = null;
     bool isKeybinding = false;
+    int keybindingIndex = -1;
     List<TextMeshProUGUI> keybindTexts = new List<TextMeshProUGUI>();
 
     private void Start()
@@ -38,24 +40,26 @@ public class SettingsManager : MonoBehaviour
         if (!isKeybinding)
         {
             isKeybinding = true;
+            keybindingIndex = buttonIndex;
             keybindTexts[buttonIndex].text = "<New Binding>";
-        }
-        else
-        {
-            if (Input.anyKeyDown)
-            {
-                foreach (KeyCode vKey in Enum.GetValues(typeof(KeyCode)))
-                {
-                    if (Input.GetKey(vKey))
-                    {
-                        keybindTexts[buttonIndex].text = vKey.ToString();
-                    }
-                }
-                isKeybinding = false;
-            }
         }
     }
 
+    private void Update()
+    {
+        if (Input.anyKeyDown && isKeybinding)
+        {
+            foreach (KeyCode vKey in Enum.GetValues(typeof(KeyCode)))
+            {
+                if (Input.GetKey(vKey))
+                {
+                    keybindTexts[keybindingIndex].text = vKey.ToString();
+                    isKeybinding = false;
+                    keybindingIndex = -1;
+                }
+            }
+        }
+    }
 
     IEnumerator KeybindChange(Text text)
     {
@@ -79,9 +83,9 @@ public class SettingsManager : MonoBehaviour
     public void CloseSetting()
     {
         Game.Instance.Data.Settings.Volume = (int)volume.value;
-        Game.Instance.Data.Settings.Select = (KeyCode)Enum.Parse(typeof(KeyCode), buttons[0].GetComponentInChildren<Text>().text, true);
-        Game.Instance.Data.Settings.RotateClockWise = (KeyCode)Enum.Parse(typeof(KeyCode), buttons[1].GetComponentInChildren<Text>().text, true);
-        Game.Instance.Data.Settings.RotateCounterClockWise = (KeyCode)Enum.Parse(typeof(KeyCode), buttons[2].GetComponentInChildren<Text>().text, true);
+        Game.Instance.Data.Settings.Select = (KeyCode)Enum.Parse(typeof(KeyCode), buttons[0].GetComponentInChildren<TextMeshProUGUI>().text, true);
+        Game.Instance.Data.Settings.RotateClockWise = (KeyCode)Enum.Parse(typeof(KeyCode), buttons[1].GetComponentInChildren<TextMeshProUGUI>().text, true);
+        Game.Instance.Data.Settings.RotateCounterClockWise = (KeyCode)Enum.Parse(typeof(KeyCode), buttons[2].GetComponentInChildren<TextMeshProUGUI>().text, true);
         Game.Instance.SceneManagerObject.LoadSceneAsyncByName("Main Menu");
     }
 
