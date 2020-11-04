@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Character
-{
+public class Character {
+
     private string name;
 
     public string Name
@@ -65,9 +65,25 @@ public class Character
 
     public Character(string name, int speed, int range, int accuracy)
     {
-        Name = name;
-        Speed = speed;
-        Range = range;
-        Accuracy = accuracy;
+
     }
+
+    public Transform transform;
+
+    public int STR;
+    public int DEX;
+    public int CON;
+    public int WIS;
+
+    public Character(Transform transform, string name) {
+        this.transform = transform;
+        Name = name;
+
+        STR = UnityEngine.Random.Range(0, 10);
+        DEX = UnityEngine.Random.Range(0, 10);
+        CON = UnityEngine.Random.Range(0, 10);
+        WIS = UnityEngine.Random.Range(0, 10);
+
+    }
+    
 }

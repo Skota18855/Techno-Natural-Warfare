@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Game : MonoBehaviour
 {
@@ -41,6 +42,8 @@ public class Game : MonoBehaviour
         set { fileManager = value; }
     }
 
+    [SerializeField] List<string> gameplayScenes = new List<string>();
+
     private void Awake()
     {
         if (Instance == null)
@@ -73,9 +76,19 @@ public class Game : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    private void SceneLoaded(Scene loadedScene, LoadSceneMode mode)
+    { 
+        if (gameplayScenes != null && gameplayScenes.Contains(loadedScene.name))
+        {
+
+        }
+    }
+
+
     void Start()
     {
-        
+        SceneManager.sceneLoaded += SceneLoaded;
     }
 
     void Update()
