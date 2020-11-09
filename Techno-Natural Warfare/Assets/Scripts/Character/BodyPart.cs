@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class BodyPart
 {
     private bool isNatural = true;
@@ -52,10 +54,11 @@ public class BodyPart
         set { weaponType = value; }
     }
 
-    public BodyPart(PartType partType, WeaponType weaponType)
+    public BodyPart(PartType partType, WeaponType weaponType, bool isNatural = true)
     {
         PartType = partType;
         WeaponType = weaponType;
+        IsNatural = isNatural;
     }
 }
 
@@ -66,8 +69,8 @@ public enum PartType
     RightLeg,
     LeftLeg,
     Torso,
-    LeftEye,
     RightEye,
+    LeftEye,
     Heart,
     Lungs,
     Brain

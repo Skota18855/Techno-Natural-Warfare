@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class Character {
 
     private string name;
@@ -45,6 +46,7 @@ public class Character {
         set { equippedWeapon = value; }
     }
 
+    [NonSerialized]
     private Dictionary<PartType, BodyPart> bodyParts;
 
     public Dictionary<PartType, BodyPart> BodyParts
@@ -52,6 +54,8 @@ public class Character {
         get { return bodyParts; }
         set { bodyParts = value; }
     }
+
+    private List<BodyPart> bodyPartsToSave;
 
     public void ReplaceBodyPart(PartType partToReplace, BodyPart partToReplaceWith)
     {
@@ -63,27 +67,36 @@ public class Character {
 
     }
 
-    public Character(string name, int speed, int range, int accuracy)
+    public Character(string name, int speed, int range, int accuracy, List<BodyPart> bodyParts)
     {
-
-    }
-
-    public Transform transform;
-
-    public int STR;
-    public int DEX;
-    public int CON;
-    public int WIS;
-
-    public Character(Transform transform, string name) {
-        this.transform = transform;
         Name = name;
+        Speed = speed;
+        Range = range;
+        Accuracy = accuracy;
 
-        STR = UnityEngine.Random.Range(0, 10);
-        DEX = UnityEngine.Random.Range(0, 10);
-        CON = UnityEngine.Random.Range(0, 10);
-        WIS = UnityEngine.Random.Range(0, 10);
-
+        BodyParts = new Dictionary<PartType, BodyPart>();
+        foreach(BodyPart part in bodyParts)
+        {
+            BodyParts.Add(part.PartType, part);
+        }
     }
+
+    //public Transform transform;
+
+    //public int STR;
+    //public int DEX;
+    //public int CON;
+    //public int WIS;
+
+    //public Character(Transform transform, string name) {
+    //    this.transform = transform;
+    //    Name = name;
+
+    //    STR = UnityEngine.Random.Range(0, 10);
+    //    DEX = UnityEngine.Random.Range(0, 10);
+    //    CON = UnityEngine.Random.Range(0, 10);
+    //    WIS = UnityEngine.Random.Range(0, 10);
+
+    //}
     
 }

@@ -42,6 +42,9 @@ public class Game : MonoBehaviour
         set { fileManager = value; }
     }
 
+    public Player Player { get; set; }
+    public Enemy Enemy { get; set; }
+
     [SerializeField] List<string> gameplayScenes = new List<string>();
 
     private void Awake()
@@ -77,18 +80,9 @@ public class Game : MonoBehaviour
         }
     }
 
-    private void SceneLoaded(Scene loadedScene, LoadSceneMode mode)
-    { 
-        if (gameplayScenes != null && gameplayScenes.Contains(loadedScene.name))
-        {
-
-        }
-    }
-
-
     void Start()
     {
-        SceneManager.sceneLoaded += SceneLoaded;
+
     }
 
     void Update()
