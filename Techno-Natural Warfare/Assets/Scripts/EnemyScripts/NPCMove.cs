@@ -38,6 +38,7 @@ public class NPCMove : TacticsMove
                 {
                     AttackTarget(target.GetComponent<TacticsMove>());
                 }
+                EndTurn();
             }
         }
         else

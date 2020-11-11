@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tile : MonoBehaviour 
+public class Tile : MonoBehaviour
 {
     public bool walkable = true;
     public bool current = false;
     public bool target = false;
+    public bool attackable = false;
     public bool selectableWith1Point = false;
     public bool selectableWith2Points = false;
 
@@ -24,16 +25,16 @@ public class Tile : MonoBehaviour
     public float g = 0;
     public float h = 0;
 
-	// Use this for initialization
-	void Start () 
-	{
+    // Use this for initialization
+    void Start()
+    {
 
-	}
-	
-	// Update is called once per frame
-	void Update () 
-	{
-        if (current || occupyingUnit != null)
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (current)
         {
             GetComponent<Renderer>().material.color = Color.magenta;
         }
@@ -47,13 +48,17 @@ public class Tile : MonoBehaviour
         }
         else if (selectableWith2Points)
         {
+            GetComponent<Renderer>().material.color = Color.cyan;
+        }
+        else if (attackable)
+        {
             GetComponent<Renderer>().material.color = Color.red;
         }
         else
         {
             GetComponent<Renderer>().material.color = Color.white;
         }
-	}
+    }
 
     public void Reset()
     {
@@ -63,6 +68,7 @@ public class Tile : MonoBehaviour
         target = false;
         selectableWith1Point = false;
         selectableWith2Points = false;
+        attackable = false;
 
         visited = false;
         parent = null;

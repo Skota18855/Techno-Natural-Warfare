@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class TurnManager : MonoBehaviour
@@ -21,7 +22,7 @@ public class TurnManager : MonoBehaviour
     {
         if (turnTeam.Count == 0)
         {
-            InitTeamTurnQueue();
+            InitTeamTurn();
         }
 
         if ((Game.Instance != null) ? (Input.GetKeyUp(Game.Instance.Data.Settings.SelectTile)) : (Input.GetKeyUp(KeyCode.Mouse0)) && SelectedUnit == null)
@@ -44,16 +45,18 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    static void InitTeamTurnQueue()
+    static void InitTeamTurn()
     {
         List<TacticsMove> teamList = units[turnKey.Peek()];
 
         foreach (TacticsMove unit in teamList)
         {
             turnTeam.Add(unit);
+            unit.actions = 2;
+            unit.hasMoved = false;
         }
 
-        if(turnKey.Peek() != "Player")
+        if (turnKey.Peek() != "Player")
         {
             SelectedUnit = turnTeam[0];
             turnTeam[0].BeginTurn();
@@ -69,12 +72,12 @@ public class TurnManager : MonoBehaviour
     {
         turnTeam.Remove(SelectedUnit);
         SelectedUnit.EndTurn();
-        SelectedUnit = (turnKey.Peek() == "Player" || turnTeam.Count < 1)?(null):(turnTeam[0]);
+        SelectedUnit = (turnKey.Peek() == "Player" || turnTeam.Count < 1) ? (null) : (turnTeam[0]);
         if (turnTeam.Count < 1)
         {
             string team = turnKey.Dequeue();
             turnKey.Enqueue(team);
-            InitTeamTurnQueue();
+            InitTeamTurn();
         }
     }
 
@@ -100,13 +103,56 @@ public class TurnManager : MonoBehaviour
         list.Add(unit);
     }
 
-    public static void AtackButtonClicked()
+    public void AtackButtonClicked()
     {
-
+        if (SelectedUnit != null && !SelectedUnit.moving && SelectedUnit.tag == "Player")
+        {
+            List<Collider> attackableTiles = Physics.OverlapSphere(SelectedUnit.transform.position, SelectedUnit.equippedWeapon.AttackRange).ToList().Where(collider => collider.gameObject.GetComponent<Tile>() != null && collider.gameObject.GetComponent<Tile>().occupyingUnit != null && !turnTeam.Contains(collider.gameObject.GetComponent<Tile>().occupyingUnit)).ToList();
+            attackableTiles.ForEach(
+                collider => collider.gameObject.GetComponent<Tile>().attackable = true
+            );
+            StartCoroutine("ChoosingTarget", attackableTiles);
+        }
     }
 
-    public static void WaitButtonClicked()
+    public void WaitButtonClicked()
     {
-        if(SelectedUnit != null) EndTurn();
+        if (SelectedUnit != null && !SelectedUnit.moving && SelectedUnit.tag == "Player")
+        {
+            EndTurn();
+        }
+    }
+
+    IEnumerator ChoosingTarget(List<Collider> attackableTiles)
+    {
+        TacticsMove target = null;
+        while (target == null)
+        {
+            if ((Game.Instance != null) ? (Input.GetKeyUp(Game.Instance.Data.Settings.SelectTile)) : (Input.GetKeyUp(KeyCode.Mouse1)))
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit))
+                {
+                    if (hit.collider.tag == "Tile")
+                    {
+                        Tile t = hit.collider.GetComponent<Tile>();
+
+                        if (t.occupyingUnit != null && !turnTeam.Contains(t.occupyingUnit) && t.attackable)
+                        {
+                            target = t.occupyingUnit;
+                        }
+                    }
+                }
+            }
+
+            yield return null;
+        }
+
+        attackableTiles.ForEach(collider => collider.gameObject.GetComponent<Tile>().Reset());
+        StopCoroutine("ChoosingTarget");
+        SelectedUnit.AttackTarget(target, false);
+        yield return null;
     }
 }

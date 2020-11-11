@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class TacticsMove : MonoBehaviour
 {
+    #region Movement Variable
     public bool turn = false;
 
     List<Tile> selectableTiles = new List<Tile>();
@@ -35,8 +36,20 @@ public class TacticsMove : MonoBehaviour
     public int actions = 2;
     public bool hasMoved = false;
 
-    public Weapon equippedWeapon;
+    #endregion
 
+    #region Character Variables
+    public Weapon equippedWeapon;
+    public int baseAccuracy;
+    public int baseHealth;
+    private Dictionary<PartType, BodyPart> bodyParts;
+
+    public Dictionary<PartType, BodyPart> BodyParts
+    {
+        get { return bodyParts; }
+        set { bodyParts = value; }
+    }
+    #endregion
     protected void Init()
     {
         tiles = GameObject.FindGameObjectsWithTag("Tile");
@@ -95,7 +108,7 @@ public class TacticsMove : MonoBehaviour
 
             selectableTiles.Add(t);
 
-            if (t.distance <= move*2)
+            if (t.distance <= move * 2)
             {
                 t.selectableWith2Points = true;
                 foreach (Tile tile in t.adjacencyList)
@@ -143,7 +156,7 @@ public class TacticsMove : MonoBehaviour
         }
         tile.occupyingUnit = this;
 
-        if(tile.selectableWith1Point || this is NPCMove)
+        if (tile.selectableWith1Point || this is NPCMove)
         {
             actions -= 1;
         }
@@ -429,10 +442,22 @@ public class TacticsMove : MonoBehaviour
     public void EndTurn()
     {
         turn = false;
+        actions = 0;
     }
 
-    public void AttackTarget(TacticsMove target)
+    public void AttackTarget(TacticsMove target, bool retaliationAttack = false)
     {
+        Debug.Log($"Attacked Target: {target.name}");
 
+        target.baseHealth -= equippedWeapon.Damage;
+
+        if (target.baseHealth <= 0)
+        {
+            Destroy(target.gameObject);
+        }
+        else
+        {
+            if (retaliationAttack) target.AttackTarget(this, false);
+        }
     }
 }

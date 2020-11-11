@@ -59,14 +59,10 @@ public class PlayerMove : TacticsMove
 
                     if (!hasMoved)
                     {
-                        if (t.selectableWith1Point || t.selectableWith2Points && (t.occupyingUnit == null || t.occupyingUnit == this))
+                        if ((t.selectableWith1Point || t.selectableWith2Points) && (t.occupyingUnit == null || t.occupyingUnit == this))
                         {
                             MoveToTile(t);
                         }
-                    }
-                    else
-                    {
-
                     }
                 }
             }
